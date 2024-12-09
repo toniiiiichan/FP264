@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "node ./app/server.js",
+    "setup": "psql -U postgres -f ./setup/setup.sql"
+  },
   "dependencies": {
     "express": "^4.21.2",
     "express-session": "^1.18.1",
