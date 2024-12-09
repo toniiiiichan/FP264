@@ -8,7 +8,7 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,                -- Unique identifier for each user
     username VARCHAR(50) NOT NULL UNIQUE,      -- User's login username
     email VARCHAR(100) NOT NULL UNIQUE,        -- User's email address
-    password_hash TEXT NOT NULL,               -- Hashed password for security
+    password TEXT NOT NULL,               -- Hashed password for security
     role VARCHAR(20) NOT NULL DEFAULT 'Free',  -- User role: Free, Paid, Admin
     subscription_start DATE,                   -- Start date for paid users
     subscription_end DATE,                     -- End date for paid users

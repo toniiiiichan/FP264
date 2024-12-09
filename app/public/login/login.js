@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Store the username in sessionStorage
                 sessionStorage.setItem('username', data.username);
                 sessionStorage.setItem('email', data.email);
-                sessionStorage.setItem('email', data.role);
+                sessionStorage.setItem('role', data.role);
                 console.log('Username stored in sessionStorage:', sessionStorage.getItem('username'));
 
 

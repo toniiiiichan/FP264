@@ -3,6 +3,7 @@ const session = require('express-session');
 const pg = require('pg');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 let app = express();
 
 let env;
@@ -25,6 +26,7 @@ pool.connect().then(() => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public/login')));
+app.use(express.static(path.join(__dirname, 'public/signup')));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -39,6 +41,47 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        const client = await pool.connect();
+        const result = await client.query(
+            'SELECT password, username, role FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            res.status(401).json({ error: 'Invalid email or password' });
+        } else {
+            const storedPassword = result.rows[0].password;
+            const username = result.rows[0].username;
+            const role = result.rows[0].role;
+
+            const match = await bcrypt.compare(password, storedPassword);
+
+            if (match) {
+                req.session.loggedIn = true;
+                req.session.username = username;
+                req.session.email = email;
+                req.session.role = role;
+
+                // Return the username in the response
+                res.status(200).json({ message: 'Login successful', username: username, email: email, role: role });
+            } else {
+                res.status(401).json({ error: 'Invalid email or password' });
+            }
+        }
+        client.release();
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

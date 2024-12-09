@@ -4,6 +4,7 @@
     "setup": "psql -U postgres -f ./setup/setup.sql"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "pg": "^8.13.1"
