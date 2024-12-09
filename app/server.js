@@ -41,6 +41,37 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.post('/signup', async (req, res) => {
+    const { email, username, password } = req.body;
+
+    try {
+        // Check if the user already exists
+        const existingUser = await pool.query(
+            'SELECT * FROM users WHERE email = $1 OR username = $2',
+            [email, username]
+        );
+
+        if (existingUser.rows.length > 0) {
+            return res.status(409).json({ error: 'User already exists with this email or username' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('Inserting new user into database\n');
+        console.log(`Email: ${email}`);
+        console.log(`Hashed password: ${hashedPassword}`);
+
+        await pool.query(
+            'INSERT INTO users (email, username, password) VALUES ($1, $2, $3)',
+            [email, username, hashedPassword]
+        );
+
+        res.status(201).json({ message: 'Account created successfully!' });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
