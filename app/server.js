@@ -13,13 +13,32 @@ try {
     process.exit(1);
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({extended: true}));
+const Pool = pg.Pool;
+const pool = new Pool(env);
 
+pool.connect().then(() => {
+    console.log("Database connected successfully");
+}).catch(err => {
+    console.error('Database connection error:', err);
+    process.exit(1);
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/login')));
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {secure: false}
+}));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
