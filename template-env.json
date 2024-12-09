@@ -1,0 +1,7 @@
+{
+    "user": "USERNAME",
+    "host": "localhost",
+    "database": "wanderwise",
+    "password": "PASSWORD",
+    "port": 5432
+}

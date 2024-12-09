@@ -9,5 +9,6 @@ npm install bcrypt
 Setup guide:
 npm run setup
 
+Make your own env.json from the template-env.json template
 
 npm run start
