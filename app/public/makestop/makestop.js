@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (response.ok) {
                 // Redirect to the homepage or refresh the current page
-                window.location.href = '/stop?id=' + data.id;
+                window.location.href = '/stop.html?id=' + data.id;
             } else {
                 alert(data.error || 'Making a stop failed');
             }

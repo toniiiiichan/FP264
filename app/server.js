@@ -28,8 +28,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public/index')));
 app.use(express.static(path.join(__dirname, 'public/login')));
 app.use(express.static(path.join(__dirname, 'public/signup')));
+app.use(express.static(path.join(__dirname, 'public/stop')));
 app.use(express.static(path.join(__dirname, 'public/makestop')));
 app.use(express.static(path.join(__dirname, 'public/makeitinerary')));
+app.use(express.static(path.join(__dirname, 'public/itinerary')));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -132,18 +134,21 @@ app.post('/make_stop', async (req, res) => {
         const userId = findUser.rows[0].user_id;
         console.log(userId);
 
+        const accessUsersArray = username.split(',').map(user => user.trim());
+        accessUsersString = JSON.stringify(accessUsersArray);
+
         let result;
         if (assignedItinerary == "None") {
             result = await pool.query(
-                `INSERT INTO stops (user_id, title, location_name, arrival_date, departure_date, notes) 
-                VALUES ($1, $2, $3, $4, $5, $6) RETURNING stop_id`,
-                [userId, title, location, dateStart, dateEnd, notes]
+                `INSERT INTO stops (user_id, access_usernames, title, location_name, arrival_date, departure_date, notes) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING stop_id`,
+                [userId, accessUsersString, title, location, dateStart, dateEnd, notes]
             );
         } else {
             result = await pool.query(
-                `INSERT INTO stops (itinerary_id, user_id, title, location_name, arrival_date, departure_date, notes) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING stop_id`,
-                [assignedItinerary, userId, title, location, dateStart, dateEnd, notes]
+                `INSERT INTO stops (itinerary_id, user_id, access_usernames, title, location_name, arrival_date, departure_date, notes) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING stop_id`,
+                [assignedItinerary, userId, accessUsersString, title, location, dateStart, dateEnd, notes]
             );
         }
         console.log("Stop saved with ID: ", result.rows[0].stop_id)
@@ -207,6 +212,50 @@ app.post('/get_user_itineraries', async (req, res) => {
         res.status(201).json({ message: 'Itineraries found successfully!', itineraries: findItineraries.rows });
         client.release();
     } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/stop', async (req, res) => {
+    try {
+        const stopId = req.query.stopId;
+        const username = req.query.username;
+    
+        console.log(stopId);
+        console.log(username);
+
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        const checkStopAccess = await client.query(
+            'SELECT access_usernames FROM stops WHERE stop_id = $1',
+            [stopId]
+        );
+
+        const accessUsers = checkStopAccess.rows[0];
+        const tester = JSON.parse(accessUsers.access_usernames);
+
+        const findStop = await client.query(
+            'SELECT * FROM stops WHERE stop_id = $1',
+            [stopId]
+        );
+
+        res.status(201).json({ stop: findStop.rows[0] });
+
+        console.log(findStop.rows[0]);
+        console.log(userId);
+        console.log(accessUsers);
+        console.log(tester);
+        
+        client.release();
+    } catch(err) {
         console.error('Error:', err);
         res.status(500).json({ error: 'Server error' });
     }

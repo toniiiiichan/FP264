@@ -32,6 +32,7 @@ CREATE TABLE stops (
     stop_id SERIAL PRIMARY KEY,               -- Unique identifier for each stop
     itinerary_id INT REFERENCES itineraries(itinerary_id) ON DELETE CASCADE, -- Associated itinerary
     user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, -- User who created the itinerary
+    access_usernames TEXT,
     stop_order INT,                  -- Order of the stop in the itinerary
     title VARCHAR(255) NOT NULL,      -- Title or name of trip
     location_name VARCHAR(255) NOT NULL,      -- Name of the location (e.g., city, landmark)
