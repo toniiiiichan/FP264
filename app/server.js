@@ -25,8 +25,10 @@ pool.connect().then(() => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/index')));
 app.use(express.static(path.join(__dirname, 'public/login')));
 app.use(express.static(path.join(__dirname, 'public/signup')));
+app.use(express.static(path.join(__dirname, 'public/makestop')));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -81,6 +83,7 @@ app.post('/login', async (req, res) => {
 
     try {
         const client = await pool.connect();
+
         const result = await client.query(
             'SELECT password, username, role FROM users WHERE email = $1',
             [email]
@@ -110,6 +113,35 @@ app.post('/login', async (req, res) => {
         client.release();
     } catch (err) {
         console.error('Database query error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/make_stop', async (req, res) => {
+    const { username, title, location, dateStart, dateEnd, notes } = req.body;
+
+    try {
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+        console.log(userId);
+
+        const result = await pool.query(
+            `INSERT INTO stops (user_id, title, location_name, arrival_date, departure_date, notes) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING stop_id`,
+            [userId, title, location, dateStart, dateEnd, notes]
+        );
+
+        console.log("Stop saved with ID: ", result.rows[0].stop_id)
+        res.status(201).json({ message: 'Stop created successfully!', id: result.rows[0].stop_id});
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
         res.status(500).json({ error: 'Server error' });
     }
 });

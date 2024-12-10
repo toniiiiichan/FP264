@@ -24,6 +24,8 @@ function updateUserAuthSection() {
         userAuthSection.innerHTML = `
                 <span>Welcome, ${username}</span>
                 <button onclick="logout()">Logout</button>
+                <button onclick="makeStop()">Create Stop</button>
+                <button onclick="makeItinerary()">Create Itinerary</button>
             `;
     } else {
         userAuthSection.innerHTML = `
@@ -31,6 +33,14 @@ function updateUserAuthSection() {
                 <a href="signup.html">Register</a>
             `;
     }
+}
+
+function makeStop() {
+    window.location.href = '/makestop.html';
+}
+
+function makeItinerary() {
+    window.location.href = '/make_itinerary.html';
 }
 
 function logout() {
