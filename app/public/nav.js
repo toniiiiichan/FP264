@@ -17,7 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateUserAuthSection() {
     const username = sessionStorage.getItem('username');
+    const role = sessionStorage.getItem('role');
     console.log('Username retrieved from sessionStorage:', username);
+    console.log('Role retrieved from sessionStorage:', role);
     const userAuthSection = document.getElementById('login-options');
 
     if (username) {
@@ -40,7 +42,7 @@ function makeStop() {
 }
 
 function makeItinerary() {
-    window.location.href = '/make_itinerary.html';
+    window.location.href = '/makeitinerary.html';
 }
 
 function logout() {
