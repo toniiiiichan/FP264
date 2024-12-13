@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Styles for the Login Page */
+body {
+    @apply bg-gray-100 flex items-center justify-center h-screen;
+  }
+  
+  #login-form {
+    @apply bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4;
+  }
+  
+  #login-form label {
+    @apply block text-gray-600 font-medium;
+  }
+  
+  #login-form input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500;
+  }
+  
+  #login-form button {
+    @apply w-full bg-blue-500 text-white py-2 rounded-lg font-medium hover:bg-blue-600 transition duration-200;
+  }
+  
