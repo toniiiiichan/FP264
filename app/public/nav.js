@@ -17,13 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateUserAuthSection() {
     const username = sessionStorage.getItem('username');
+    const role = sessionStorage.getItem('role');
     console.log('Username retrieved from sessionStorage:', username);
+    console.log('Role retrieved from sessionStorage:', role);
     const userAuthSection = document.getElementById('login-options');
 
     if (username) {
         userAuthSection.innerHTML = `
                 <span>Welcome, ${username}</span>
                 <button onclick="logout()">Logout</button>
+                <button onclick="makeStop()">Create Stop</button>
+                <button onclick="makeItinerary()">Create Itinerary</button>
             `;
     } else {
         userAuthSection.innerHTML = `
@@ -31,6 +35,14 @@ function updateUserAuthSection() {
                 <a href="signup.html">Register</a>
             `;
     }
+}
+
+function makeStop() {
+    window.location.href = '/makestop.html';
+}
+
+function makeItinerary() {
+    window.location.href = '/makeitinerary.html';
 }
 
 function logout() {
