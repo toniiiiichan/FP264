@@ -6,6 +6,7 @@ npm install express-session
 npm install pg
 npm install bcrypt
 npm install -D tailwindcss
+npm install stripe
 
 
 Setup guide:

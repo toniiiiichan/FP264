@@ -501,6 +501,7 @@ app.post('/update_role', async (req, res) => {
                     `UPDATE users SET role = $1 WHERE user_id = $2`,
                     ["Free", userId]
                 );
+                return res.json({ url: "http://localhost:3000/"});
             } catch (error) {
                 console.error(`Error updating user role: ${error}`);
             }
