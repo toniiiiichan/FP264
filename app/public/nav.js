@@ -25,6 +25,7 @@ function updateUserAuthSection() {
     if (username) {
         userAuthSection.innerHTML = `
                 <span>Welcome, ${username}</span>
+                <button onclick="getRole()">Find Your Website Role</button>
                 <button onclick="logout()">Logout</button>
                 <button onclick="makeStop()">Create Stop</button>
                 <button onclick="makeItinerary()">Create Itinerary</button>
@@ -35,6 +36,10 @@ function updateUserAuthSection() {
                 <a href="signup.html">Register</a>
             `;
     }
+}
+
+function getRole() {
+    window.location.href = '/role.html';
 }
 
 function makeStop() {

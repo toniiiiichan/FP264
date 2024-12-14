@@ -4,8 +4,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const stopId = urlParams.get('id');
     const username = sessionStorage.username;
+    const role = sessionStorage.role;
 
-    let response = await fetch(`/stop?stopId=${stopId}&username=${username}`);
+    if (role == "Free") {
+        alert("You cannot update the stop as you are a free user")
+        window.location.href = '/';
+        return;
+    }
+
+    let response = await fetch(`/stop?stopId=${stopId}&username=${username}&role=${role}`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }

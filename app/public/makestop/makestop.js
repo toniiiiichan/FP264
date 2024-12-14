@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const dropdown = document.getElementById("dropdown");
     const username = sessionStorage.username;
+    const role = sessionStorage.role;
+    if(role == "Free") {
+        alert("You do not have access to that feature");
+        window.location.href = '/';
+        return;
+    }
+    
     const form = document.getElementById("stop-form");
 
     try {

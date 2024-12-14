@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const stopsBox = document.getElementById('stop-details')
         const itineraryId = urlParams.get('id');
         const username = sessionStorage.username;
-        const websiteRole = sessionStorage.role;
+        const role = sessionStorage.role;
 
         if (!itineraryId || !username) {
             console.error("Missing itineraryId or username");
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        const response = await fetch(`/itinerary?itineraryId=${itineraryId}&username=${username}`);
+        const response = await fetch(`/itinerary?itineraryId=${itineraryId}&username=${username}&role=${role}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

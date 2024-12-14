@@ -1,9 +1,16 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const username = sessionStorage.username;
+    const role = sessionStorage.role;
     const form = document.getElementById("itinerary-form");
     const urlParams = new URLSearchParams(window.location.search);
     const itineraryId = urlParams.get('id');
 
+    if (role == "Free") {
+        alert("You cannot update the stop as you are a free user")
+        window.location.href = '/';
+        return;
+    }
+    
     try {
         if (!itineraryId || !username) {
             console.error("Missing itineraryId or username");
@@ -11,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        const response = await fetch(`/itinerary?itineraryId=${itineraryId}&username=${username}`);
+        const response = await fetch(`/itinerary?itineraryId=${itineraryId}&username=${username}&role=${role}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

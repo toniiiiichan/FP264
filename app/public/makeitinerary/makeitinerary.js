@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById("itinerary-form");
+    const role = sessionStorage.role;
+
+    if(role == "Free") {
+        alert("You do not have access to that feature");
+        window.location.href = '/';
+        return;
+    }
 
     form.addEventListener('submit', async function (event) {
         event.preventDefault();

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const stopBox = document.getElementById('stop-details')
         const stopId = urlParams.get('id');
         const username = sessionStorage.username;
+        const role = sessionStorage.role;
 
         if (!stopId || !username) {
             console.error("Missing stopId or username");
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        const response = await fetch(`/stop?stopId=${stopId}&username=${username}`);
+        const response = await fetch(`/stop?stopId=${stopId}&username=${username}&role=${role}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

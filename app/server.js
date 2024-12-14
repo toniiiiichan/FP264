@@ -34,6 +34,8 @@ app.use(express.static(path.join(__dirname, 'public/makeitinerary')));
 app.use(express.static(path.join(__dirname, 'public/itinerary')));
 app.use(express.static(path.join(__dirname, 'public/updateitinerary')));
 app.use(express.static(path.join(__dirname, 'public/updatestop')));
+app.use(express.static(path.join(__dirname, 'public/role')));
+
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
@@ -226,6 +228,8 @@ app.get('/stop', async (req, res) => {
     try {
         const stopId = req.query.stopId;
         const username = req.query.username;
+        const role = req.query.role;
+        let isAdmin = role == "Admin";
         let hasItineraryAccess = false;
         let hasOwnerAccess = false;
         let hasStopAccess = false;
@@ -280,7 +284,7 @@ app.get('/stop', async (req, res) => {
         console.log(hasOwnerAccess);
 
 
-        if (hasStopAccess || hasOwnerAccess || hasItineraryAccess) {
+        if (hasStopAccess || hasOwnerAccess || hasItineraryAccess || isAdmin) {
             res.status(201).json({ stop: findStop.rows[0] });
         } else {
             res.status(400).json({ error: "User does not have access" });
@@ -296,9 +300,11 @@ app.get('/itinerary', async (req, res) => {
     try {
         const itineraryId = req.query.itineraryId;
         const username = req.query.username;
+        const role = req.query.role;
         let hasItineraryAccess = false;
         let hasOwnerAccess = false;
-    
+        let isAdmin = role == "Admin";
+
         console.log(itineraryId);
         console.log(username);
 
@@ -343,7 +349,7 @@ app.get('/itinerary', async (req, res) => {
         console.log(findStops.rows);
 
 
-        if (hasOwnerAccess || hasItineraryAccess) {
+        if (hasOwnerAccess || hasItineraryAccess || isAdmin) {
             res.status(201).json({ itinerary: findItinerary.rows[0], stops: findStops.rows});
         } else {
             res.status(400).json({ error: "User does not have access" });
