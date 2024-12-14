@@ -225,6 +225,8 @@ app.get('/stop', async (req, res) => {
         const stopId = req.query.stopId;
         const username = req.query.username;
         let hasItineraryAccess = false;
+        let hasOwnerAccess = false;
+        let hasStopAccess = false;
     
         console.log(stopId);
         console.log(username);
@@ -244,9 +246,14 @@ app.get('/stop', async (req, res) => {
         );
 
         const accessUsers = checkStopAccess.rows[0];
-        const viewPermissions = JSON.parse(accessUsers.access_usernames);
+        console.log('hey', accessUsers);
 
-        const creatorId = accessUsers.user_id;
+        if(accessUsers.access_usernames) {
+            const viewPermissions = JSON.parse(accessUsers.access_usernames);
+            const creatorId = accessUsers.user_id;
+            hasStopAccess = viewPermissions.includes(username);
+            hasOwnerAccess = creatorId == userId
+        }
 
         const findStop = await client.query(
             'SELECT * FROM stops WHERE stop_id = $1',
@@ -267,14 +274,15 @@ app.get('/stop', async (req, res) => {
         console.log(userId);
         console.log(accessUsers);
         console.log(hasItineraryAccess);
+        console.log(hasStopAccess);
+        console.log(hasOwnerAccess);
 
 
-        if (creatorId == userId || viewPermissions.includes(username) || hasItineraryAccess) {
+        if (hasStopAccess || hasOwnerAccess || hasItineraryAccess) {
             res.status(201).json({ stop: findStop.rows[0] });
         } else {
-            res.status(400).json({ stop: "User does not have access" });
+            res.status(400).json({ error: "User does not have access" });
         }
-
         client.release();
     } catch(err) {
         console.error('Error:', err);
@@ -286,6 +294,8 @@ app.get('/itinerary', async (req, res) => {
     try {
         const itineraryId = req.query.itineraryId;
         const username = req.query.username;
+        let hasItineraryAccess = false;
+        let hasOwnerAccess = false;
     
         console.log(itineraryId);
         console.log(username);
@@ -305,9 +315,13 @@ app.get('/itinerary', async (req, res) => {
         );
 
         const accessUsers = checkItineraryAccess.rows[0];
-        const viewPermissions = JSON.parse(accessUsers.access_usernames);
 
-        const creatorId = accessUsers.user_id;
+        if(accessUsers.access_usernames) {
+            const viewPermissions = JSON.parse(accessUsers.access_usernames);
+            const creatorId = accessUsers.user_id;
+            hasItineraryAccess = viewPermissions.includes(username);
+            hasOwnerAccess = creatorId == userId
+        }
 
         const findItinerary = await client.query(
             'SELECT * FROM itineraries WHERE itinerary_id = $1',
@@ -317,14 +331,15 @@ app.get('/itinerary', async (req, res) => {
         console.log(findItinerary.rows[0]);
         console.log(userId);
         console.log(accessUsers);
+        console.log(hasItineraryAccess);
+        console.log(hasOwnerAccess);
 
 
-        if (creatorId == userId || viewPermissions.includes(username)) {
+        if (hasOwnerAccess || hasItineraryAccess) {
             res.status(201).json({ itinerary: findItinerary.rows[0] });
         } else {
-            res.status(400).json({ itinerary: "User does not have access" });
+            res.status(400).json({ error: "User does not have access" });
         }
-
         client.release();
     } catch(err) {
         console.error('Error:', err);

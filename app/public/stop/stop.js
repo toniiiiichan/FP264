@@ -1,8 +1,7 @@
-const stopBox = document.getElementById('stop-details')
-
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         const urlParams = new URLSearchParams(window.location.search);
+        const stopBox = document.getElementById('stop-details')
         const stopId = urlParams.get('id');
         const username = sessionStorage.username;
 
@@ -22,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         console.log(stopDetails);
         if(stopDetails == "User does not have access" ) {
-            console.error("User does not have access to view this stop");
+            console.log("User does not have access to view this stop");
         } else {
             const formatDate = (dateString) => {
                 const options = {
