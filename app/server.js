@@ -560,14 +560,14 @@ app.get('/user_stops', async (req, res) => {
 
         const userId = findUser.rows[0].user_id;
 
+        let findStops = await client.query(
+            'SELECT * FROM stops WHERE user_id = $1',
+            [userId]
+        );
+
         if (role == "Admin") {
-            const findStops = await client.query(
+            findStops = await client.query(
                 'SELECT * FROM stops');
-        } else {
-            const findStops = await client.query(
-                'SELECT * FROM stops WHERE user_id = $1',
-                [userId]
-            );
         }
 
         res.status(201).json({ stops: findStops.rows });
@@ -596,14 +596,14 @@ app.get('/user_itineraries', async (req, res) => {
 
         console.log(userId);
 
+        let findItineraries = await client.query(
+            'SELECT * FROM itineraries WHERE user_id = $1',
+            [userId]
+        );
+
         if (role == "Admin") {
-            const findItineraries = await client.query(
+            findItineraries = await client.query(
                 'SELECT * FROM itineraries');
-        } else {
-            const findItineraries = await client.query(
-                'SELECT * FROM itineraries WHERE user_id = $1',
-                [userId]
-            );
         }
 
         console.log(findItineraries.rows);
