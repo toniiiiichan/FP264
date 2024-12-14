@@ -14,6 +14,9 @@ try {
     process.exit(1);
 }
 
+let stripeKey = env.stripeAPIKEY
+const stripe = require("stripe")(stripeKey);
+
 const Pool = pg.Pool;
 const pool = new Pool(env);
 
@@ -435,6 +438,34 @@ app.post('/update_role', async (req, res) => {
 
         const userId = findUser.rows[0].user_id;
 
+        if (chosenRole == Paid) {
+            try {
+                const session = await stripe.checkout.sessions.
+                    create({
+                        payment_method_types: ["card"],
+                        phone_number_collection: {
+                            enabled: true,
+                        },
+                        mode: "payment",
+                        line_items: [
+                            {
+                                price_data: {
+                                    currency: 'usd',
+                                    product_data: {
+                                        name: "Paid Membership"
+                                    },
+                                    unit_amount: 1000
+                                },
+                                quantity: 1
+                            }
+                        ],
+                        success_url: "/paid.html",
+                        cancel_url: "/cancel.html",
+                    });
+            } catch (error) {
+                console.error(`Error sending email: ${error}`);
+            }
+        }
         let result = await pool.query(
             `UPDATE users SET role = $1
             WHERE user_id = $2`,
