@@ -420,6 +420,35 @@ app.post('/update_stop', async (req, res) => {
     }
 });
 
+app.post('/update_role', async (req, res) => {
+    const {username, chosenRole} = req.body;
+
+    try {
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        let result = await pool.query(
+            `UPDATE users SET role = $1
+            WHERE user_id = $2`,
+            [chosenRole, userId]
+        );
+
+        console.log("Role updated successfully")
+        console.log(chosenRole);
+        res.status(201).json({ message: 'Role updated successfully!', role: chosenRole});
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
