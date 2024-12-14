@@ -570,6 +570,8 @@ app.get('/user_stops', async (req, res) => {
                 'SELECT * FROM stops');
         }
 
+        console.log(role);
+
         res.status(201).json({ stops: findStops.rows });
         client.release();
     } catch (err) {
@@ -605,6 +607,8 @@ app.get('/user_itineraries', async (req, res) => {
             findItineraries = await client.query(
                 'SELECT * FROM itineraries');
         }
+
+        console.log(role);
 
         console.log(findItineraries.rows);
 
