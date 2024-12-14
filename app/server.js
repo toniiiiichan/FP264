@@ -121,7 +121,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/make_stop', async (req, res) => {
-    const { username, title, assignedItinerary, location, dateStart, dateEnd, notes } = req.body;
+    const { username, accessUsers, title, assignedItinerary, location, dateStart, dateEnd, notes } = req.body;
 
     try {
         const client = await pool.connect();
@@ -134,7 +134,7 @@ app.post('/make_stop', async (req, res) => {
         const userId = findUser.rows[0].user_id;
         console.log(userId);
 
-        const accessUsersArray = username.split(',').map(user => user.trim());
+        const accessUsersArray = accessUsers.split(',').map(user => user.trim());
         accessUsersString = JSON.stringify(accessUsersArray);
 
         let result;
@@ -161,11 +161,14 @@ app.post('/make_stop', async (req, res) => {
 });
 
 app.post('/make_itinerary', async (req, res) => {
-    const { username, title, description } = req.body;
+    const { username, accessUsers, title, description } = req.body;
 
     try {
         const client = await pool.connect();
 
+        const accessUsersArray = accessUsers.split(',').map(user => user.trim());
+        accessUsersString = JSON.stringify(accessUsersArray);
+        
         const findUser = await client.query(
             'SELECT user_id FROM users WHERE username = $1',
             [username]
@@ -175,9 +178,9 @@ app.post('/make_itinerary', async (req, res) => {
         console.log(userId);
 
         const result = await pool.query(
-            `INSERT INTO itineraries (user_id, title, description) 
-            VALUES ($1, $2, $3) RETURNING itinerary_id`,
-            [userId, title, description]
+            `INSERT INTO itineraries (user_id, access_usernames, title, description) 
+            VALUES ($1, $2, $3, $4) RETURNING itinerary_id`,
+            [userId, accessUsersString, title, description]
         );
 
         console.log("Itinerary created with ID: ", result.rows[0].itinerary_id)
@@ -221,6 +224,7 @@ app.get('/stop', async (req, res) => {
     try {
         const stopId = req.query.stopId;
         const username = req.query.username;
+        let hasItineraryAccess = false;
     
         console.log(stopId);
         console.log(username);
@@ -235,25 +239,92 @@ app.get('/stop', async (req, res) => {
         const userId = findUser.rows[0].user_id;
 
         const checkStopAccess = await client.query(
-            'SELECT access_usernames FROM stops WHERE stop_id = $1',
+            'SELECT access_usernames, user_id FROM stops WHERE stop_id = $1',
             [stopId]
         );
 
         const accessUsers = checkStopAccess.rows[0];
-        const tester = JSON.parse(accessUsers.access_usernames);
+        const viewPermissions = JSON.parse(accessUsers.access_usernames);
+
+        const creatorId = accessUsers.user_id;
 
         const findStop = await client.query(
             'SELECT * FROM stops WHERE stop_id = $1',
             [stopId]
         );
 
-        res.status(201).json({ stop: findStop.rows[0] });
-
+        if (findStop.rows[0].itinerary_id) {
+            const checkItineraryAccess = await client.query(
+                'SELECT access_usernames FROM itineraries WHERE itinerary_id = $1',
+                [itineraryId]
+            );
+    
+            const itineraryAccess = checkItineraryAccess.rows[0].access_usernames;
+            console.log(itineraryAccess);
+            hasItineraryAccess = itineraryAccess.includes(username);
+        }
         console.log(findStop.rows[0]);
         console.log(userId);
         console.log(accessUsers);
-        console.log(tester);
-        
+        console.log(hasItineraryAccess);
+
+
+        if (creatorId == userId || viewPermissions.includes(username) || hasItineraryAccess) {
+            res.status(201).json({ stop: findStop.rows[0] });
+        } else {
+            res.status(400).json({ stop: "User does not have access" });
+        }
+
+        client.release();
+    } catch(err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/itinerary', async (req, res) => {
+    try {
+        const itineraryId = req.query.itineraryId;
+        const username = req.query.username;
+    
+        console.log(itineraryId);
+        console.log(username);
+
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        const checkItineraryAccess = await client.query(
+            'SELECT access_usernames, user_id FROM itineraries WHERE itinerary_id = $1',
+            [itineraryId]
+        );
+
+        const accessUsers = checkItineraryAccess.rows[0];
+        const viewPermissions = JSON.parse(accessUsers.access_usernames);
+
+        const creatorId = accessUsers.user_id;
+
+        const findItinerary = await client.query(
+            'SELECT * FROM itineraries WHERE itinerary_id = $1',
+            [itineraryId]
+        );
+
+        console.log(findItinerary.rows[0]);
+        console.log(userId);
+        console.log(accessUsers);
+
+
+        if (creatorId == userId || viewPermissions.includes(username)) {
+            res.status(201).json({ itinerary: findItinerary.rows[0] });
+        } else {
+            res.status(400).json({ itinerary: "User does not have access" });
+        }
+
         client.release();
     } catch(err) {
         console.error('Error:', err);

@@ -1,7 +1,8 @@
+const stopBox = document.getElementById('stop-details')
+
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        const stopBox = document.getElementById('stop-details')
         const stopId = urlParams.get('id');
         const username = sessionStorage.username;
 
@@ -20,31 +21,35 @@ document.addEventListener('DOMContentLoaded', async function () {
         const stopDetails = results.stop;
 
         console.log(stopDetails);
-
-        const formatDate = (dateString) => {
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
+        if(stopDetails == "User does not have access" ) {
+            console.error("User does not have access to view this stop");
+        } else {
+            const formatDate = (dateString) => {
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                };
+                return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
             };
-            return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
-        };
 
-        const arrivalFormatted = formatDate(stopDetails.arrival_date);
-        const departureFormatted = formatDate(stopDetails.departure_date);
+            const arrivalFormatted = formatDate(stopDetails.arrival_date);
+            const departureFormatted = formatDate(stopDetails.departure_date);
 
-        stopBox.innerHTML = `
-            <h2>${stopDetails.title}</h2>
-            <p>Location: ${stopDetails.location_name}</p>
-            <p>Arrival Date: ${arrivalFormatted}</p>
-            <p>Departure Date: ${departureFormatted}</p>
-            <p>Notes: ${stopDetails.notes}</p>
-        `;
+            stopBox.innerHTML = `
+                <h2>${stopDetails.title}</h2>
+                <p>Location: ${stopDetails.location_name}</p>
+                <p>Arrival Date: ${arrivalFormatted}</p>
+                <p>Departure Date: ${departureFormatted}</p>
+                <p>Notes: ${stopDetails.notes}</p>
+            `;
+        }
     } catch (error) {
         console.error("Error fetching stop details:", error.message);
-        stopBox.innerHTML = "Error loading stop details.";
+        alert('User does not have access to this page');
+        window.location.href = '/';
     }
 });

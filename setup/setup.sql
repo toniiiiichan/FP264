@@ -20,6 +20,7 @@ CREATE TABLE users (
 CREATE TABLE itineraries (
     itinerary_id SERIAL PRIMARY KEY,           -- Unique identifier for each itinerary
     user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, -- User who created the itinerary
+    access_usernames TEXT,
     title VARCHAR(255) NOT NULL,              -- Title of the itinerary
     description TEXT,                         -- Description of the itinerary
     stops_count INT DEFAULT 0,                -- Count of stops in the itinerary

@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     form.addEventListener('submit', async function (event) {
         event.preventDefault();
         const title = document.getElementById('title').value;
+        const accessUsers = document.getElementById('access_users').value;
 
         const address = document.getElementById('address').value;
         const country = document.getElementById('country').value;
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             response = await fetch('/make_stop', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({username, title, assignedItinerary, location, dateStart, dateEnd, notes})
+                body: JSON.stringify({username, accessUsers, title, assignedItinerary, location, dateStart, dateEnd, notes})
             });
 
             data = await response.json();
