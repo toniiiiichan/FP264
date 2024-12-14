@@ -34,6 +34,8 @@ app.use(express.static(path.join(__dirname, 'public/makeitinerary')));
 app.use(express.static(path.join(__dirname, 'public/itinerary')));
 app.use(express.static(path.join(__dirname, 'public/updateitinerary')));
 app.use(express.static(path.join(__dirname, 'public/updatestop')));
+app.use(express.static(path.join(__dirname, 'public/yourstops')));
+app.use(express.static(path.join(__dirname, 'public/youritineraries')));
 app.use(express.static(path.join(__dirname, 'public/role')));
 
 
@@ -323,8 +325,8 @@ app.get('/itinerary', async (req, res) => {
         );
 
         const accessUsers = checkItineraryAccess.rows[0];
-
-        if(accessUsers.access_usernames) {
+        console.log(accessUsers);
+        if(accessUsers) {
             const viewPermissions = JSON.parse(accessUsers.access_usernames);
             const creatorId = accessUsers.user_id;
             hasItineraryAccess = viewPermissions.includes(username);
@@ -442,6 +444,66 @@ app.post('/update_role', async (req, res) => {
         console.log("Role updated successfully")
         console.log(chosenRole);
         res.status(201).json({ message: 'Role updated successfully!', role: chosenRole});
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/user_stops', async (req, res) => {
+    try {
+        const username = req.query.username;
+
+        console.log(username);
+
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        const findStops = await client.query(
+            'SELECT * FROM stops WHERE user_id = $1',
+            [userId]
+        );
+
+        res.status(201).json({ stops: findStops.rows });
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/user_itineraries', async (req, res) => {
+    try {
+        const username = req.query.username;
+
+        console.log(username);
+
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        console.log(userId);
+
+        const findItineraries = await client.query(
+            'SELECT * FROM itineraries WHERE user_id = $1',
+            [userId]
+        );
+
+        console.log(findItineraries.rows);
+
+        res.status(201).json({ itineraries: findItineraries.rows });
         client.release();
     } catch (err) {
         console.error('Error:', err);
