@@ -4,21 +4,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     const form = document.getElementById("stop-form");
 
     try {
-        let response = await fetch('/get_user_itineraries', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({username})
-        });
+        const response = await fetch(`/get_user_itineraries?username=${username}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        let data = await response.json();
-        console.log(data);
-        let itineraries = data.itineraries;
+        const results = await response.json();
+        const itineraryDetails = results.itineraries;
 
-        if (itineraries.length > 0) {
-            console.log(itineraries);
-            console.log(itineraries[0].title);
+        if (itineraryDetails.length > 0) {
+            console.log(itineraryDetails);
+            console.log(itineraryDetails[0].title);
 
-            for (const itinerary of itineraries) {
+            for (const itinerary of itineraryDetails) {
                 let option = document.createElement("option");
                 option.textContent = itinerary.title;
                 option.value = itinerary.itinerary_id;
@@ -41,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const city = document.getElementById('city').value;
         const zip = document.getElementById('zip').value;
 
-        const location = `${address}, ${state_province}, ${city} ${zip}, ${country}}`
+        const location = `${address}, ${city}, ${state_province} ${zip}, ${country}`
         const assignedItinerary = document.getElementById('dropdown').value;
         const dateStart = document.getElementById('date-start').value;
         const dateEnd = document.getElementById('date-end').value;

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         if (!itineraryId || !username) {
             console.error("Missing itineraryId or username");
-            itineraryBox.innerHTML = "Error: Missing parameters.";
+            alert("Error: Missing parameters.");
             return;
         }
 
@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             itineraryBox.innerHTML = `
                 <h2>${itineraryDetails.title}</h2>
                 <p>Description: ${itineraryDetails.description}</p>
+                <h5> <a href="/updateitinerary.html?id=${itineraryDetails.itinerary_id}">Edit itinerary</a> </h5>
             `;
 
             if(stopDetails.length > 0) {
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     let div = document.createElement("div");
                     div.innerHTML = `
-                    <h4> <a href="/stop.html?id=${stop.stop_id}">${stop.title}</a></h2>
+                    <h4> <a href="/stop.html?id=${stop.stop_id}">${stop.title}</a> </h4>
                     <p>Location: ${stop.location_name}</p>
                     <p>Arrival Date: ${arrivalFormatted}</p>
                     <p>Departure Date: ${departureFormatted}</p>

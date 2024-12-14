@@ -32,6 +32,9 @@ app.use(express.static(path.join(__dirname, 'public/stop')));
 app.use(express.static(path.join(__dirname, 'public/makestop')));
 app.use(express.static(path.join(__dirname, 'public/makeitinerary')));
 app.use(express.static(path.join(__dirname, 'public/itinerary')));
+app.use(express.static(path.join(__dirname, 'public/updateitinerary')));
+app.use(express.static(path.join(__dirname, 'public/updatestop')));
+
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
@@ -192,10 +195,9 @@ app.post('/make_itinerary', async (req, res) => {
     }
 });
 
-app.post('/get_user_itineraries', async (req, res) => {
-    const { username } = req.body;
-
+app.get('/get_user_itineraries', async (req, res) => {
     try {
+        const username = req.query.username;
         const client = await pool.connect();
 
         const findUser = await client.query(
@@ -348,6 +350,65 @@ app.get('/itinerary', async (req, res) => {
         }
         client.release();
     } catch(err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/update_itinerary', async (req, res) => {
+    const { accessUsers, title, description, itineraryId} = req.body;
+
+    try {
+        const client = await pool.connect();
+
+        const accessUsersArray = accessUsers.split(',').map(user => user.trim());
+        accessUsersString = JSON.stringify(accessUsersArray);
+
+        const result = await pool.query(
+            `UPDATE itineraries SET access_usernames = $1, title = $2, description = $3 
+            WHERE itinerary_id = $4`,
+            [accessUsersString, title, description, itineraryId]
+        );
+
+        console.log("Itinerary updated with ID: ", itineraryId)
+        res.status(201).json({ message: 'Itinerary updated successfully!'});
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/update_stop', async (req, res) => {
+    const {stopId, accessUsers, title, assignedItinerary, location, dateStart, dateEnd, notes} = req.body;
+
+    try {
+        const client = await pool.connect();
+
+        const accessUsersArray = accessUsers.split(',').map(user => user.trim());
+        accessUsersString = JSON.stringify(accessUsersArray);
+
+        let result;
+        if (assignedItinerary == "None") {
+            result = await pool.query(
+                `UPDATE stops SET access_usernames = $1, title = $2, location_name = $3, arrival_date = $4,
+                departure_date = $5, notes = $6
+                WHERE stop_id = $7`,
+                [accessUsersString, title, location, dateStart, dateEnd, notes, stopId]
+            );
+        } else {
+            result = await pool.query(
+                `UPDATE stops SET itinerary_id = $1, access_usernames = $2, title = $3, location_name = $4, arrival_date = $5,
+                departure_date = $6, notes = $7
+                WHERE stop_id = $8`,
+                [assignedItinerary, accessUsersString, title, location, dateStart, dateEnd, notes, stopId]
+            );
+        }
+
+        console.log("Stop updated with ID: ", stopId)
+        res.status(201).json({ message: 'Stop updated successfully!'});
+        client.release();
+    } catch (err) {
         console.error('Error:', err);
         res.status(500).json({ error: 'Server error' });
     }

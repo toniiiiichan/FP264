@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             stopBox.innerHTML = `
                 <h2>${stopDetails.title}</h2>
+                <h5> <a href="/updatestop.html?id=${stopDetails.stop_id}">Edit stop</a> </h5>
                 <h4><a href="itinerary.html?id=${stopDetails.itinerary_id}">Connected itinerary</a></h2>
-                <p>Location: ${stopDetails.location_name}</p>
+                <p>Location: ${stopDetails.location_name} </p>
                 <p>Arrival Date: ${arrivalFormatted}</p>
                 <p>Departure Date: ${departureFormatted}</p>
                 <p>Notes: ${stopDetails.notes}</p>
