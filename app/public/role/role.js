@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const data = await response.json();
         console.log(data); 
+        const paymentLink = data.url;
 
-        sessionStorage.setItem('role', data.role);
-        window.location.href = '/';
+        window.location.href = paymentLink;
     });
 });

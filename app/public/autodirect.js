@@ -1,4 +1,6 @@
-checkLoggedIn();
+document.addEventListener('DOMContentLoaded', async function () {
+    checkLoggedIn();
+});
 
 function checkLoggedIn() {
     const username = sessionStorage.getItem('username');
@@ -8,3 +10,4 @@ function checkLoggedIn() {
         window.location.href = '/login.html';
     }
 }
+

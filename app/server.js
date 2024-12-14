@@ -15,7 +15,10 @@ try {
 }
 
 let stripeKey = env.stripeAPIKEY
-const stripe = require("stripe")(stripeKey);
+console.log(stripeKey);
+
+const Stripe = require("stripe");
+const stripe = Stripe(stripeKey);
 
 const Pool = pg.Pool;
 const pool = new Pool(env);
@@ -437,40 +440,72 @@ app.post('/update_role', async (req, res) => {
         );
 
         const userId = findUser.rows[0].user_id;
-
-        if (chosenRole == Paid) {
+        
+        if (chosenRole == "Paid") {
             try {
-                const session = await stripe.checkout.sessions.
-                    create({
-                        payment_method_types: ["card"],
-                        phone_number_collection: {
-                            enabled: true,
-                        },
-                        mode: "payment",
-                        line_items: [
-                            {
-                                price_data: {
-                                    currency: 'usd',
-                                    product_data: {
-                                        name: "Paid Membership"
-                                    },
-                                    unit_amount: 1000
+                const session = await stripe.checkout.sessions.create({
+                    payment_method_types: ["card"],
+                    phone_number_collection: {
+                        enabled: true,
+                    },
+                    mode: "payment", 
+                    line_items: [
+                        {
+                            price_data: {
+                                currency: 'usd',
+                                product_data: {
+                                    name: "Paid Membership"
                                 },
-                                quantity: 1
-                            }
-                        ],
-                        success_url: "/paid.html",
-                        cancel_url: "/cancel.html",
-                    });
+                                unit_amount: 1000
+                            },
+                            quantity: 1
+                        }
+                    ],
+                    success_url: `http://localhost:3000/success?userId=${userId}&role=${chosenRole}`,
+                    cancel_url: "http://localhost:3000/",
+                });
+                return res.json({ url: session.url });
             } catch (error) {
-                console.error(`Error sending email: ${error}`);
+                console.error(`Error creating Stripe session: ${error}`);
+            }
+        } else if (chosenRole == "Admin") {
+            try {
+                const session = await stripe.checkout.sessions.create({
+                    payment_method_types: ["card"],
+                    phone_number_collection: {
+                        enabled: true,
+                    },
+                    mode: "payment", 
+                    line_items: [
+                        {
+                            price_data: {
+                                currency: 'usd',
+                                product_data: {
+                                    name: "Admin Membership"
+                                },
+                                unit_amount: 100000
+                            },
+                            quantity: 1
+                        }
+                    ],
+                    success_url: `http://localhost:3000/success?userId=${userId}&role=${chosenRole}`,
+                    cancel_url: "http://localhost:3000/",
+                });
+                return res.json({ url: session.url });
+            } catch (error) {
+                console.error(`Error creating Stripe session: ${error}`);
+            }
+        } else {
+            try {
+                let result = await pool.query(
+                    `UPDATE users SET role = $1 WHERE user_id = $2`,
+                    ["Free", userId]
+                );
+            } catch (error) {
+                console.error(`Error updating user role: ${error}`);
             }
         }
-        let result = await pool.query(
-            `UPDATE users SET role = $1
-            WHERE user_id = $2`,
-            [chosenRole, userId]
-        );
+        
 
         console.log("Role updated successfully")
         console.log(chosenRole);
@@ -479,6 +514,31 @@ app.post('/update_role', async (req, res) => {
     } catch (err) {
         console.error('Error:', err);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/success', async (req, res) => {
+    const { userId, role } = req.query;
+
+    if (!userId || !role) {
+        return res.status(400).json({ error: 'Missing userId or role' });
+    }
+
+    try {
+        // Update the role immediately after payment success
+        const client = await pool.connect();
+        await pool.query(
+            'UPDATE users SET role = $1 WHERE user_id = $2',
+            [role, userId]
+        );
+        console.log('User role updated to Paid after successful payment');
+        client.release();
+        
+        // Optionally, redirect to a confirmation page
+        res.redirect('/'); // Redirect to a success page after updating the role
+    } catch (error) {
+        console.error('Error updating user role after payment:', error);
+        res.status(500).json({ error: 'Error updating user role after payment' });
     }
 });
 
@@ -535,6 +595,36 @@ app.get('/user_itineraries', async (req, res) => {
         console.log(findItineraries.rows);
 
         res.status(201).json({ itineraries: findItineraries.rows });
+        client.release();
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/get_user_role', async (req, res) => {
+    try {
+        const username = req.query.username;
+
+        console.log(username);
+
+        const client = await pool.connect();
+
+        const findUser = await client.query(
+            'SELECT user_id FROM users WHERE username = $1',
+            [username]
+        );
+
+        const userId = findUser.rows[0].user_id;
+
+        console.log(userId);
+
+        const findRole = await client.query(
+            'SELECT role FROM users WHERE user_id = $1',
+            [userId]
+        );
+
+        res.status(201).json({ role: findRole.rows[0].role });
         client.release();
     } catch (err) {
         console.error('Error:', err);
