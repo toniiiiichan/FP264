@@ -3,14 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Role Settings</title>
+    <title>Your Current Role Settings</title>
+    <link href="output.css" rel="stylesheet">
 </head>
-<body>
-    <div id = "navbar-placeholder"></div>
-    <script src = "nav.js"></script>
-    <script src = "role.js"></script>
-    <script src = "../autodirect.js"></script>
-    <div id="role-info"></div>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen">
+    <!-- Navigation -->
+    <div id="navbar-placeholder"></div>
+    <script src="nav.js"></script>
+    <script src="role.js"></script>
+    <script src="../autodirect.js"></script>
+    <div class="flex flex-col items-center justify-center w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg mt-8">
+        <!-- Title -->
+        <h1 class="text-3xl font-bold text-blue-600 mb-4">Your Role Settings</h1>
+        <p class="text-gray-700 text-lg mb-6 text-center">
+            Manage your account subscription here.
+        </p>
+        <!-- Current Role Info -->
+        <div id="role-info" class="bg-gray-100 p-4 rounded-lg w-full text-center border border-gray-300">
+        </div>
+    </div>
 
     <form id = "role-form">
         <div>

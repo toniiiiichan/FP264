@@ -4,11 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wander Wise</title>
+    <link href="output.css" rel="stylesheet">
 </head>
-<body>
-    <div id = "navbar-placeholder"></div>
-    <script src = "nav.js"></script>
-    <script src = "index.js"></script>
-    <script src = "../autodirect.js"></script>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <!-- Navigation -->
+    <div id="navbar-placeholder"></div>
+    <script src="nav.js"></script>
+    <script src="index.js"></script>
+    <script src="../autodirect.js"></script>
+
+    <div class="text-center">
+        <p class="text-2xl font-bold text-blue-600 mb-6"></p>
+        <div class="bg-white p-6 rounded-lg shadow-md inline-block">
+            <table id="calendar-table" class="table-auto w-full text-lg">
+                <tr id="calendar-month" class="text-red-600 font-medium">
+                    <th colspan="7" class="text-3xl font-extrabold text-blue-500 mb-4 py-2"></th>
+                </tr>
+                <tr class="text-gray-600 font-medium">
+                    <td class="py-5 px-4 text-center">Sunday</td>
+                    <td class="py-5 px-4 text-center">Monday</td>
+                    <td class="py-5 px-4 text-center">Tuesday</td>
+                    <td class="py-5 px-4 text-center">Wednesday</td>
+                    <td class="py-5 px-4 text-center">Thursday</td>
+                    <td class="py-5 px-4 text-center">Friday</td>
+                    <td class="py-5 px-4 text-center">Saturday</td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
+
+<script>
+    console.log(sessionStorage);
+    let calendarMonth = document.getElementById("calendar-month");
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    console.log(currentYear);
+    const currentMonthIndex = currentDate.getMonth();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const currentMonthName = monthNames[currentMonthIndex];
+    calendarMonth.textContent = currentMonthName;
+    console.log(currentMonthName);
+
+    var dt = new Date(currentMonthName + " 1, " + currentYear);
+    const firstDayOfMonth = dt.getDay();
+
+    console.log(firstDayOfMonth);
+
+    const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
+    let daysInCurrentMonth = daysInMonth(2024, currentMonthIndex);
+    console.log(daysInCurrentMonth);
+
+    for (let i = 0; i < 5; i++) {
+        let table = document.getElementById("calendar-table");
+        let tr = document.createElement("tr");
+        for (let j = 0; j < 7; j++) {
+            let td = document.createElement("td");
+            let date = (j + 1) + (7 * i);
+
+            if(i == 0 && j < firstDayOfMonth) {
+                j++;
+            }
+            else if (date <= daysInCurrentMonth + 1) {
+                let a = document.createElement("a");
+                a.href = "date?month=" + currentMonthName.toLowerCase() + "&day=" + date;
+                a.textContent = date;
+                td.append(a);
+            }
+
+            td.className = "text-center py-2 text-gray-700 hover:text-blue-500"; // Styling for calendar dates
+            tr.append(td);
+        }
+        table.append(tr);
+    }
+</script>
 </html>
