@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     let div = document.createElement("div");
                     div.innerHTML = `
-                    <h4>${stop.title}</h2>
+                    <h4> <a href="/stop.html?id=${stop.stop_id}">${stop.title}</a></h2>
                     <p>Location: ${stop.location_name}</p>
                     <p>Arrival Date: ${arrivalFormatted}</p>
                     <p>Departure Date: ${departureFormatted}</p>
