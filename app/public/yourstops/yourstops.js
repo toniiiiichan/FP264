@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        const response = await fetch(`/user_stops?username=${username}`);
+        const response = await fetch(`/user_stops?username=${username}&role${role}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
