@@ -263,7 +263,7 @@ app.get('/stop', async (req, res) => {
         if (findStop.rows[0].itinerary_id) {
             const checkItineraryAccess = await client.query(
                 'SELECT access_usernames FROM itineraries WHERE itinerary_id = $1',
-                [itineraryId]
+                [findStop.rows[0].itinerary_id]
             );
     
             const itineraryAccess = checkItineraryAccess.rows[0].access_usernames;
@@ -328,15 +328,21 @@ app.get('/itinerary', async (req, res) => {
             [itineraryId]
         );
 
+        const findStops = await client.query(
+            'SELECT * FROM stops WHERE itinerary_id = $1',
+            [itineraryId]
+        );
+
         console.log(findItinerary.rows[0]);
         console.log(userId);
         console.log(accessUsers);
         console.log(hasItineraryAccess);
         console.log(hasOwnerAccess);
+        console.log(findStops.rows);
 
 
         if (hasOwnerAccess || hasItineraryAccess) {
-            res.status(201).json({ itinerary: findItinerary.rows[0] });
+            res.status(201).json({ itinerary: findItinerary.rows[0], stops: findStops.rows});
         } else {
             res.status(400).json({ error: "User does not have access" });
         }
