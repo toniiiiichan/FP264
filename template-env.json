@@ -4,5 +4,5 @@
     "database": "wanderwise",
     "password": "PASSWORD",
     "port": 5432,
-    "stripeAPIKEY": "sk_test_51PtU9OB2iGrQIjEkjhGddR0fqnkzXBunnrrPF09pWEVcB7O2UBsHYbx3B0KgeX4Ar96a6JTj5sjpK0ED9PG7pRg100gw4VCWtE"
+    "stripeAPIKEY": "SECRETKEYHERE"
 }
